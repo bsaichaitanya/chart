@@ -1,0 +1,154 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<script>
+window.onload = function () {
+
+var dataPoints1 = [];
+var dataPoints2 = [];
+var dataPoints3 = [];
+
+var chart = new CanvasJS.Chart("chartContainer", {
+	zoomEnabled: true,
+	title: {
+		text: "Current and time"
+	},
+	axisX: {
+		title: "chart updates ",
+		valueFormatString:  "hh:mm:ss:mmmmmm"
+	},
+	axisY:{
+		prefix: "Units",
+		includeZero: false
+		
+	}, 
+	toolTip: {
+		shared: true
+	},
+	legend: {
+		cursor:"pointer",
+		verticalAlign: "top",
+		fontSize: 22,
+		fontColor: "dimGrey"
+	},
+	data: [{ 
+		type: "line",
+		xValueType: "dateTime",
+		yValueFormatString: "$####.00",
+		xValueFormatString: "hh:mm:ss:ms",
+		showInLegend: true,
+		name: "Current",
+		dataPoints: dataPoints1
+		}]
+});
+var chart2 = new CanvasJS.Chart("chartContainer2", {
+	zoomEnabled: true,
+	title: {
+		text: " voltage and Time"
+	},
+	axisX: {
+		title: "chart update",
+		valueFormatString:  "hh:mm:ss:mmmmmm"
+	},
+	axisY:{
+		prefix: "units",
+		includeZero: false
+	}, 
+	toolTip: {
+		shared: true
+	},
+	legend: {
+		cursor:"pointer",
+		verticalAlign: "top",
+		fontSize: 22,
+		fontColor: "dimGrey"
+	},
+	data: [{ 				
+			type: "line",
+			xValueType: "dateTime",
+			yValueFormatString: "$####.00",
+			showInLegend: true,
+			name: "Voltage" ,
+			dataPoints: dataPoints2
+	}]
+});
+var chart3 = new CanvasJS.Chart("chartContainer3", {
+	zoomEnabled: true,
+	title: {
+		text: "Power and Time"
+	},
+	axisX: {
+		title: "chart updates",
+		//valueFormatString: "MMM",
+		//labelFormatter: time
+		valueFormatString:  "hh:mm:ss:mmmmmm"
+		},
+	axisY:{
+		prefix: "units",
+		includeZero: false
+	}, 
+	toolTip: {
+		shared: true
+	},
+	legend: {
+		cursor:"pointer",
+		verticalAlign: "top",
+		fontSize: 22,
+		fontColor: "dimGrey"
+	},
+	data: [{ 				
+			type: "line",
+			xValueType: "dateTime",
+			yValueFormatString: "units####.00",
+			showInLegend: true,
+			name: "Power" ,
+			dataPoints: dataPoints3
+	}]
+});
+
+	
+	
+var connection = new WebSocket('ws://localhost:8002/websocket');
+
+
+connection.onmessage = function(event) {
+    var newData = JSON.parse(event.data);
+	console.log(newData)
+	console.log(newData.current)
+	console.log(newData.time)
+	// pushing the new values
+	dataPoints1.push({
+		x: Date.now(),
+		y: newData.current
+	});
+	dataPoints2.push({
+		x: Date.now(),
+		y: newData.voltage
+	});
+	dataPoints3.push({
+		x: Date.now(),
+		y: newData.power
+	});
+	chart.render();
+	chart2.render();
+	chart3.render();
+	}
+
+	// updating legend text with  updated with y Value 
+	//chart.options.data[0].legendText = " Company A  $" + yValue1;
+	//chart.options.data[1].legendText = " Company B  $" + yValue2; 
+	chart.render();
+	chart2.render();
+	chart3.render();
+}
+
+
+</script>
+</head>
+<body>
+<div id="chartContainer" style="height: 300px; width: 100%;"></div>
+<div id="chartContainer2" style="height: 300px; width: 100%;"></div>
+<div id="chartContainer3" style="height: 300px; width: 100%;"></div>
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+</body>
+</html>
